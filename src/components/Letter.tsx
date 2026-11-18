@@ -44,7 +44,8 @@ export function RevealTitle({
           <span className="mask">
             <m.span
               className="mask__word"
-              initial={reduce ? false : { y: '108%' }}
+              // 130 % : au-delà de la marge basse du masque, sinon les points des « i » dépassent.
+              initial={reduce ? false : { y: '130%' }}
               animate={show ? { y: '0%' } : undefined}
               transition={{ duration: 0.9, ease: EASE_OUT, delay: delay + i * stagger }}
             >

@@ -14,6 +14,16 @@ export const content = {
     mention: 'HashCode / Soumission de Nelkaël',
     titre: `${NOM}, j’ai une dernière mission à vous soumettre.`,
     bouton: 'Relire la mission',
+    /**
+     * Fausse relecture après le clic, une ligne à la fois.
+     * La dernière ligne est l'alerte qui déclenche la surprise.
+     */
+    relecture: [
+      { label: 'lint', valeur: 'ok' },
+      { label: 'tests', valeur: '24/24' },
+      { label: 'revue', valeur: 'approuvée' },
+      { label: '1 anomalie', valeur: 'anniversaire' },
+    ],
   },
 
   /** Écran 2 — la surprise */
@@ -21,6 +31,15 @@ export const content = {
     titre: `Joyeux anniversaire, ${NOM}.`,
     /** Description du gâteau pour les lecteurs d’écran. */
     gateauAlt: 'Un petit gâteau d’anniversaire en pixels, avec une bougie allumée.',
+  },
+
+  /** Le final, sous la signature : souffler la bougie. */
+  bougie: {
+    invite: 'Faites un vœu d’abord.',
+    bouton: 'Souffler la bougie',
+    fait: 'Vœu enregistré.',
+    /** Description de la grille finale pour les lecteurs d’écran. */
+    merciAlt: 'La grille se reforme et écrit MERCI en carrés verts.',
   },
 
   /**
