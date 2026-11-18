@@ -5,6 +5,8 @@ Microsite statique (Vite + React + TypeScript), deux écrans : une fausse soumis
 - **Textes** : tout est dans `src/content.ts`.
 - **Transition 3D** : `src/scene/cakeScene.ts` (Three.js, chargé en différé). Couleurs des couches, angle de vue et chronologie en tête de fichier.
 - **Gâteau CSS de repli** : dessin en caractères dans `src/components/PixelCake.tsx`. Utilisé si Three.js n'est pas encore chargé au clic ou si WebGL échoue.
+- **Lettre animée** : `src/components/Letter.tsx` (Motion) — titre révélé mot par mot, encre qui suit le défilement, signature manuscrite tracée par une pointe verte. Tout s'affiche directement avec « réduire les animations ».
+- **Polices** : Newsreader (titre + lettre) et Mrs Saint Delafield (signature), auto-hébergées via Fontsource.
 - **Couleurs** : jetons en haut de `src/styles.css`.
 
 ```bash

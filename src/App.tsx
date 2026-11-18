@@ -2,6 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { content } from './content'
 import { ContributionGrid, GRID_ROWS } from './components/ContributionGrid'
 import { PixelCake } from './components/PixelCake'
+import { Letter, RevealTitle } from './components/Letter'
 import type { CakeScene } from './scene/cakeScene'
 
 type SceneModule = typeof import('./scene/cakeScene')
@@ -155,20 +156,20 @@ export function App() {
           <div ref={stageRef} className="cake-stage" role="img" aria-label={surprise.gateauAlt}>
             {mode === 'css' && <PixelCake />}
           </div>
-          <h1
+          {/* En mode CSS, on laisse le gâteau se construire avant le titre. */}
+          <RevealTitle
             ref={titleRef}
-            tabIndex={-1}
-            className={`surprise__title${titleOn ? ' is-on' : ''}`}
-          >
-            {surprise.titre}
-          </h1>
-          <article className={`letter${letterOn ? ' is-on' : ''}`}>
-            <p className="letter__salutation">{lettre.salutation}</p>
-            {lettre.paragraphes.map((p) => (
-              <p key={p}>{p}</p>
-            ))}
-            <p className="letter__signature">{lettre.signature}</p>
-          </article>
+            text={surprise.titre}
+            show={titleOn}
+            delay={mode === 'css' ? 0.8 : 0}
+          />
+          <Letter
+            salutation={lettre.salutation}
+            paragraphs={lettre.paragraphes}
+            signature={lettre.signature}
+            show={letterOn}
+            delay={mode === 'css' ? 1.2 : 0.15}
+          />
         </section>
       )}
 

@@ -6,8 +6,11 @@
   --green: #60dd00;
   --text: #ffffff;
   --muted: #8f95a5;
+  --ink-wet: #f2f3f6; /* encre de la lettre une fois lue */
 
   --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-serif: 'Newsreader Variable', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-script: 'Mrs Saint Delafield', 'Snell Roundhand', 'Brush Script MT', cursive;
   --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Roboto Mono', Menlo, Consolas, monospace;
 
   --gutter: 20px;
@@ -189,7 +192,8 @@ p {
 /* ───────── Écran 2 : la surprise ───────── */
 .screen--surprise {
   padding-top: calc(28px + env(safe-area-inset-top));
-  padding-bottom: calc(72px + env(safe-area-inset-bottom));
+  /* assez de place sous la lettre pour que l'encre du dernier paragraphe sèche */
+  padding-bottom: calc(max(96px, 24vh) + env(safe-area-inset-bottom));
 }
 
 /* Zone du gâteau : même hauteur en 3D et en CSS, pour que la lettre ne bouge pas. */
@@ -269,66 +273,94 @@ p {
   from { opacity: 0; }
 }
 
-@keyframes rise-in {
-  from { opacity: 0; transform: translateY(10px); }
-}
-
+/* Titre : grand serif, révélé mot par mot depuis un masque. */
 .surprise__title {
-  margin-top: 20px;
+  margin: 22px auto 0;
   text-align: center;
-  font-size: clamp(1.75rem, 8vw, 2.25rem);
-  line-height: 1.2;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-family: var(--font-serif);
+  font-size: clamp(1.9rem, 8.6vw, 3.25rem);
+  font-weight: 440;
+  line-height: 1.04;
+  letter-spacing: -0.025em;
   text-wrap: balance;
-  animation: rise-in 600ms 850ms ease-out both;
 }
 
 .surprise__title:focus {
   outline: none;
 }
 
+.mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  /* marge pour les jambages et les accents, que le masque couperait */
+  padding: 0.06em 0.02em 0.14em;
+  margin: -0.06em -0.02em -0.14em;
+}
+
+.mask__word {
+  display: inline-block;
+  will-change: transform;
+}
+
 /* ───────── La lettre ───────── */
 .letter {
-  margin-top: 28px;
-  padding-top: 28px;
-  border-top: 1px solid #1f1f2b;
-  font-size: 1.125rem;
-  line-height: 1.75;
-  color: #eceef2;
-  animation: rise-in 700ms 1.1s ease-out both;
+  max-width: 34rem;
+  margin: 40px auto 0;
+  font-family: var(--font-serif);
+  font-size: 1.1875rem;
+  font-weight: 380;
+  line-height: 1.62;
+  color: var(--ink-wet);
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures;
+}
+
+.letter p {
+  text-wrap: pretty;
+  hyphens: manual;
 }
 
 .letter p + p {
-  margin-top: 1.25em;
+  margin-top: 1em;
 }
 
 .letter__salutation {
-  font-weight: 600;
-  color: var(--text);
+  margin-bottom: 0.4em;
+  font-size: 1.375rem;
+  font-weight: 520;
+  letter-spacing: -0.01em;
 }
 
-.letter .letter__signature {
-  margin-top: 2.25em;
-  font-size: 1.25rem;
-  font-weight: 650;
-  color: var(--text);
+/* Signature manuscrite, décalée à droite comme au bas d'une lettre. */
+.letter .signature {
+  position: relative;
+  width: max-content;
+  margin: 1.1em 0.25em 0 auto;
+  font-family: var(--font-script);
+  font-size: 4.1rem;
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--ink-wet);
 }
 
-/* Mode 3D : le titre puis la lettre apparaissent à la fin de la scène. */
-[data-mode='3d'] .surprise__title,
-[data-mode='3d'] .letter {
-  animation: none;
-  opacity: 0;
-  transform: translateY(10px);
-  transition:
-    opacity 450ms ease-out,
-    transform 450ms ease-out;
+.signature__text {
+  display: inline-block;
+  padding: 0 0.15em;
 }
 
-[data-mode='3d'] .is-on {
-  opacity: 1;
-  transform: none;
+.signature__nib {
+  position: absolute;
+  top: 48%;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow:
+    0 0 0 3px rgba(96, 221, 0, 0.18),
+    0 0 18px 2px rgba(96, 221, 0, 0.55);
+  pointer-events: none;
 }
 
 /* ───────── Écrans plus larges ───────── */
