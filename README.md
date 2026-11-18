@@ -14,3 +14,14 @@ npm run build    # génère dist/ (site statique, chemins relatifs)
 ```
 
 `dist/` se dépose tel quel sur Netlify Drop, Vercel, GitHub Pages ou tout hébergement statique.
+
+## Aperçu de partage (WhatsApp)
+
+Défini dans `index.html` (`og:*`) : « Une mission pour M. Eurin » + image `public/og-grid.png` (la grille seule).
+Rien dans ce fichier ne doit trahir la surprise : il est lu tel quel par l'aperçu et visible dans le code source.
+L'URL de l'image doit être absolue : à mettre à jour si le domaine change.
+
+## Déploiement
+
+Projet Vercel `mission-pour-eurin`, relié à ce dépôt : chaque push sur `main` redéploie la production
+(https://mission-pour-eurin.vercel.app).
