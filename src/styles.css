@@ -11,7 +11,7 @@
   --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Roboto Mono', Menlo, Consolas, monospace;
 
   --gutter: 20px;
-  --px: 10px; /* taille d'un pixel du gâteau */
+  --px: 9px; /* taille d'un pixel du gâteau CSS ; la zone fait 20 pixels de haut */
 
   color-scheme: dark;
 }
@@ -23,6 +23,7 @@
 }
 
 html {
+  scrollbar-gutter: stable; /* pas de saut horizontal quand la lettre allonge la page */
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
@@ -107,8 +108,7 @@ p {
 }
 
 .grid__cell {
-  aspect-ratio: 1;
-  border-radius: 2px;
+  aspect-ratio: 1; /* angles droits : identiques aux cubes 3D qui prennent le relais */
   background: var(--surface-2);
   animation: cell-in 420ms ease-out both;
   animation-delay: calc(var(--col) * 28ms);
@@ -119,8 +119,37 @@ p {
 .grid__cell--l3 { background: rgba(96, 221, 0, 0.7); }
 .grid__cell--l4 { background: var(--green); }
 
+.grid--hidden {
+  visibility: hidden; /* le canvas Three.js dessine les cubes au même endroit */
+}
+
 @keyframes cell-in {
   from { opacity: 0; transform: scale(0.6); }
+}
+
+/* Écran 1 pendant la scène 3D : même position, il s'efface sous les cubes. */
+.screen--ghost {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 280ms ease-out;
+}
+
+/* Canvas Three.js, en coordonnées du document. */
+.scene {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.scene canvas {
+  display: block;
 }
 
 /* ───────── Bouton ───────── */
@@ -159,8 +188,15 @@ p {
 
 /* ───────── Écran 2 : la surprise ───────── */
 .screen--surprise {
-  padding-top: calc(48px + env(safe-area-inset-top));
+  padding-top: calc(28px + env(safe-area-inset-top));
   padding-bottom: calc(72px + env(safe-area-inset-bottom));
+}
+
+/* Zone du gâteau : même hauteur en 3D et en CSS, pour que la lettre ne bouge pas. */
+.cake-stage {
+  height: calc(var(--px) * 20);
+  display: grid;
+  place-items: center;
 }
 
 .cake {
@@ -238,7 +274,7 @@ p {
 }
 
 .surprise__title {
-  margin-top: 36px;
+  margin-top: 20px;
   text-align: center;
   font-size: clamp(1.75rem, 8vw, 2.25rem);
   line-height: 1.2;
@@ -254,8 +290,8 @@ p {
 
 /* ───────── La lettre ───────── */
 .letter {
-  margin-top: 48px;
-  padding-top: 36px;
+  margin-top: 28px;
+  padding-top: 28px;
   border-top: 1px solid #1f1f2b;
   font-size: 1.125rem;
   line-height: 1.75;
@@ -279,11 +315,27 @@ p {
   color: var(--text);
 }
 
+/* Mode 3D : le titre puis la lettre apparaissent à la fin de la scène. */
+[data-mode='3d'] .surprise__title,
+[data-mode='3d'] .letter {
+  animation: none;
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 450ms ease-out,
+    transform 450ms ease-out;
+}
+
+[data-mode='3d'] .is-on {
+  opacity: 1;
+  transform: none;
+}
+
 /* ───────── Écrans plus larges ───────── */
 @media (min-width: 480px) {
   :root {
     --gutter: 28px;
-    --px: 12px;
+    --px: 11px;
   }
 }
 

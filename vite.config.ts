@@ -6,4 +6,8 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   base: './',
   plugins: [react()],
+  build: {
+    // Three.js vit dans un chunk à part, chargé en différé après le premier rendu.
+    chunkSizeWarningLimit: 600,
+  },
 })

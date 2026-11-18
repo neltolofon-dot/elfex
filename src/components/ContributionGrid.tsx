@@ -1,10 +1,13 @@
+import type { Ref } from 'react'
+
 /**
  * Grille décorative façon « calendrier de contributions ».
  * Aucune donnée réelle : un générateur pseudo-aléatoire à graine fixe
  * produit toujours le même motif, un peu plus dense vers la droite.
  */
 
-const ROWS = 7
+export const GRID_ROWS = 7
+const ROWS = GRID_ROWS
 const COLS = 20
 const SEED = 0x2e0121
 
@@ -34,9 +37,9 @@ function buildLevels(): number[] {
 
 const LEVELS = buildLevels()
 
-export function ContributionGrid() {
+export function ContributionGrid({ ref, hidden }: { ref?: Ref<HTMLDivElement>; hidden?: boolean }) {
   return (
-    <div className="grid" aria-hidden="true">
+    <div ref={ref} className={`grid${hidden ? ' grid--hidden' : ''}`} aria-hidden="true">
       {LEVELS.map((level, i) => (
         <span
           key={i}

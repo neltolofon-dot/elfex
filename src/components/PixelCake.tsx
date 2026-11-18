@@ -47,12 +47,13 @@ const CLASS: Record<string, string> = {
 const COLS = DRAWING[0].length
 const ROWS = DRAWING.length
 
-export function PixelCake({ label }: { label: string }) {
+/** Version CSS du gâteau : repli si Three.js n'est pas prêt ou si WebGL échoue.
+ *  Purement décorative : la zone parente porte la description accessible. */
+export function PixelCake() {
   return (
     <div
       className="cake"
-      role="img"
-      aria-label={label}
+      aria-hidden="true"
       style={{ ['--cols' as string]: COLS, ['--rows' as string]: ROWS }}
     >
       {DRAWING.flatMap((line, row) =>
