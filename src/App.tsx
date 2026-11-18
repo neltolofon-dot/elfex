@@ -22,6 +22,7 @@ export function App() {
   const reducedRef = useRef(false)
   const modRef = useRef<SceneModule | null>(null)
   const sceneRef = useRef<CakeScene | null>(null)
+  const sceneFailedRef = useRef(false) // WebGL indisponible : on ne réessaie pas
   const gridRef = useRef<HTMLDivElement>(null)
   const hostRef = useRef<HTMLDivElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
@@ -40,6 +41,7 @@ export function App() {
 
   const ensureScene = useCallback((): CakeScene | null => {
     if (sceneRef.current) return sceneRef.current
+    if (sceneFailedRef.current) return null
     const mod = modRef.current
     if (!mod || !gridRef.current || !hostRef.current) return null
     sceneRef.current = mod.createCakeScene({
@@ -48,6 +50,7 @@ export function App() {
       rows: GRID_ROWS,
       onFail: fallBackToCss,
     })
+    if (!sceneRef.current) sceneFailedRef.current = true
     return sceneRef.current
   }, [fallBackToCss])
 
