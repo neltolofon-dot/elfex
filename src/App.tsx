@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { m } from 'motion/react'
 import { content } from './content'
 import { ContributionGrid, GRID_ROWS } from './components/ContributionGrid'
 import { PixelCake } from './components/PixelCake'
@@ -8,13 +9,13 @@ import type { CakeScene } from './scene/cakeScene'
 type SceneModule = typeof import('./scene/cakeScene')
 type Mode = '3d' | 'css'
 
-/** Laisse l'animation d'entrée de la grille DOM se terminer avant de passer au canvas. */
-const SCENE_SWAP_DELAY = 1200
+/** On prépare la scène 3D après la séquence d'ouverture, pour ne pas la saccader. */
+const SCENE_PREP_DELAY = 1600
+const EASE_OUT = [0.16, 1, 0.3, 1] as const
 
 export function App() {
   const [revealed, setRevealed] = useState(false)
   const [mode, setMode] = useState<Mode>('css')
-  const [sceneReady, setSceneReady] = useState(false)
   const [ghost, setGhost] = useState(false) // écran 1 qui s'efface pendant la scène 3D
   const [titleOn, setTitleOn] = useState(false)
   const [letterOn, setLetterOn] = useState(false)
@@ -33,7 +34,6 @@ export function App() {
   const fallBackToCss = useCallback(() => {
     sceneRef.current?.dispose()
     sceneRef.current = null
-    setSceneReady(false)
     setMode('css')
     setGhost(false)
     setTitleOn(true)
@@ -52,6 +52,7 @@ export function App() {
       onFail: fallBackToCss,
     })
     if (!sceneRef.current) sceneFailedRef.current = true
+    else hostRef.current.dataset.ready = 'true'
     return sceneRef.current
   }, [fallBackToCss])
 
@@ -64,10 +65,10 @@ export function App() {
       .then((mod) => {
         if (cancelled) return
         modRef.current = mod
-        const wait = Math.max(0, SCENE_SWAP_DELAY - (performance.now() - mountedAt))
+        const wait = Math.max(0, SCENE_PREP_DELAY - (performance.now() - mountedAt))
         timer = window.setTimeout(() => {
           if (cancelled || lockRef.current) return
-          if (ensureScene()) setSceneReady(true)
+          ensureScene()
         }, wait)
       })
       .catch(() => {
@@ -84,6 +85,7 @@ export function App() {
   function reveal() {
     if (lockRef.current) return // double appui
     lockRef.current = true
+    navigator.vibrate?.(12) // petit retour haptique (Android)
     reducedRef.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
     let scene: CakeScene | null = null
@@ -94,7 +96,6 @@ export function App() {
     }
 
     if (scene) {
-      setSceneReady(true)
       setMode('3d')
       setGhost(!reducedRef.current)
     } else {
@@ -131,6 +132,10 @@ export function App() {
 
   const { soumission, surprise, lettre } = content
   const showSubmission = !revealed || ghost
+  // « HashCode / Soumission de Nelkaël » : l'organisation, puis le document.
+  const slash = soumission.mention.indexOf(' / ')
+  const mentionOrg = slash > 0 ? soumission.mention.slice(0, slash) : soumission.mention
+  const mentionRest = slash > 0 ? soumission.mention.slice(slash) : ''
 
   return (
     <main>
@@ -140,14 +145,41 @@ export function App() {
           aria-hidden={revealed || undefined}
           inert={revealed}
         >
-          <p className="mention">{soumission.mention}</p>
-          <h1 className="submission__title">{soumission.titre}</h1>
-          <div className="card">
-            <ContributionGrid ref={gridRef} hidden={sceneReady} />
-          </div>
-          <button type="button" className="button" onClick={reveal} disabled={revealed}>
-            {soumission.bouton}
-          </button>
+          <m.p
+            className="mention"
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: EASE_OUT }}
+          >
+            <span className="mention__org">{mentionOrg}</span>
+            {mentionRest}
+          </m.p>
+          <RevealTitle
+            className="submission__title"
+            text={soumission.titre}
+            show
+            delay={0.12}
+            stagger={0.05}
+            focusable={false}
+            breakAfter={0}
+          />
+          <ContributionGrid
+            ref={gridRef}
+            hidden={revealed && mode === '3d'}
+            interactive={!revealed}
+          />
+          <m.button
+            type="button"
+            className="button"
+            onClick={reveal}
+            disabled={revealed}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: EASE_OUT, delay: 0.55 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            <span className="button__label">{soumission.bouton}</span>
+          </m.button>
         </section>
       )}
 
@@ -173,7 +205,12 @@ export function App() {
         </section>
       )}
 
-      <div ref={hostRef} className="scene" aria-hidden="true" />
+      {/* Le canvas n'apparaît qu'au clic : au repos, la grille HTML reste touchable. */}
+      <div
+        ref={hostRef}
+        className={`scene${revealed && mode === '3d' ? ' scene--live' : ''}`}
+        aria-hidden="true"
+      />
     </main>
   )
 }

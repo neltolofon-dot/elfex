@@ -19,16 +19,26 @@ export function RevealTitle({
   show,
   delay = 0,
   ref,
+  className = 'surprise__title',
+  focusable = true,
+  breakAfter,
+  stagger = 0.08,
 }: {
   text: string
   show: boolean
   delay?: number
   ref?: Ref<HTMLHeadingElement>
+  className?: string
+  /** Cible du focus après la révélation. */
+  focusable?: boolean
+  /** Index du mot après lequel passer à la ligne (ex. après « M. Eurin, »). */
+  breakAfter?: number
+  stagger?: number
 }) {
   const reduce = useReducedMotion()
   const words = text.split(' ')
   return (
-    <h1 ref={ref} tabIndex={-1} className="surprise__title">
+    <h1 ref={ref} tabIndex={focusable ? -1 : undefined} className={className}>
       {words.map((word, i) => (
         <span key={i}>
           <span className="mask">
@@ -36,12 +46,12 @@ export function RevealTitle({
               className="mask__word"
               initial={reduce ? false : { y: '108%' }}
               animate={show ? { y: '0%' } : undefined}
-              transition={{ duration: 0.9, ease: EASE_OUT, delay: delay + i * 0.08 }}
+              transition={{ duration: 0.9, ease: EASE_OUT, delay: delay + i * stagger }}
             >
               {word}
             </m.span>
           </span>
-          {i < words.length - 1 ? ' ' : null}
+          {i === breakAfter ? <br /> : i < words.length - 1 ? ' ' : null}
         </span>
       ))}
     </h1>

@@ -419,6 +419,10 @@ export function createCakeScene({ host, grid, rows, onFail }: CreateOptions): Ca
         finish()
         return
       }
+      // Première image dessinée tout de suite : le canvas devient visible dans
+      // la même image que celle où la grille HTML se cache, sans trou.
+      frame(0)
+      render()
       state = 'playing'
       let t0 = 0
       const tick = (now: number) => {

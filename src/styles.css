@@ -58,10 +58,25 @@ p {
 
 /* ───────── Écran 1 : la soumission ───────── */
 .screen--submission {
+  position: relative;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   min-height: 100svh;
+}
+
+/* Papier quadrillé, à peine visible : il se dissout avec l'écran à la révélation. */
+.screen--submission::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.075) 1px, transparent 1.4px);
+  background-size: 22px 22px;
+  background-position: center top;
+  -webkit-mask-image: radial-gradient(120% 75% at 50% 45%, #000 30%, transparent 85%);
+  mask-image: radial-gradient(120% 75% at 50% 45%, #000 30%, transparent 85%);
 }
 
 .mention {
@@ -69,40 +84,57 @@ p {
   font-size: 0.8125rem;
   letter-spacing: 0.01em;
   color: var(--muted);
-  display: flex;
-  align-items: center;
-  gap: 0.6em;
 }
 
-.mention::before {
-  content: '';
-  width: 8px;
-  height: 8px;
-  border-radius: 2px;
-  background: var(--green);
-  flex: none;
+.mention__org {
+  color: var(--text);
+  font-weight: 600;
 }
 
 .submission__title {
-  margin-top: auto; /* centre le bloc titre + grille dans l'espace dispo */
-  padding-top: 40px;
-  font-size: clamp(1.625rem, 7vw, 2rem);
-  line-height: 1.25;
-  font-weight: 650;
-  letter-spacing: -0.015em;
-  text-wrap: balance;
+  margin-top: auto; /* centre le bloc titre + grille dans l'espace disponible */
+  padding-top: 36px;
+  font-family: var(--font-serif);
+  font-size: clamp(2.45rem, 11.2vw, 3.6rem);
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: -0.032em;
 }
 
-.card {
-  margin-top: 28px;
-  margin-bottom: auto;
-  padding: 16px;
-  background: var(--surface);
-  border: 1px solid #1f1f2b;
-  border-radius: 14px;
+/* La grille : des touches lumineuses qu'on a envie d'effleurer. */
+.grid-wrap {
+  --gx: 50%;
+  --gy: 50%;
+  position: relative;
+  /* presque bord à bord sur téléphone : plus grande, plus facile à toucher */
+  margin: 34px calc(8px - var(--gutter)) auto;
+  padding: 6px;
+  touch-action: none; /* le doigt dessine au lieu de faire défiler */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Halo vert qui suit le doigt. */
+.grid-wrap::before {
+  content: '';
+  position: absolute;
+  left: var(--gx);
+  top: var(--gy);
+  width: 240px;
+  height: 240px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(96, 221, 0, 0.2), transparent 62%);
+  opacity: 0;
+  transition: opacity 400ms ease;
+  pointer-events: none;
+}
+
+.grid-wrap.is-touched::before {
+  opacity: 1;
 }
 
 .grid {
+  position: relative;
   display: grid;
   grid-template-rows: repeat(7, auto);
   grid-auto-flow: column;
@@ -110,24 +142,61 @@ p {
   gap: 3px;
 }
 
+/* Couleurs pleines (déjà composées sur le fond) : la scène 3D les relit telles quelles. */
 .grid__cell {
+  position: relative;
   aspect-ratio: 1; /* angles droits : identiques aux cubes 3D qui prennent le relais */
-  background: var(--surface-2);
-  animation: cell-in 420ms ease-out both;
-  animation-delay: calc(var(--col) * 28ms);
+  background: #17171f;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+  transition:
+    background-color 260ms ease,
+    transform 140ms ease;
+  animation: cell-in 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(240ms + var(--col) * 32ms);
 }
 
-.grid__cell--l1 { background: rgba(96, 221, 0, 0.22); }
-.grid__cell--l2 { background: rgba(96, 221, 0, 0.45); }
-.grid__cell--l3 { background: rgba(96, 221, 0, 0.7); }
-.grid__cell--l4 { background: var(--green); }
+.grid__cell[data-level='1'] { background: #1d380c; }
+.grid__cell[data-level='2'] { background: #316908; }
+.grid__cell[data-level='3'] { background: #469e05; }
+.grid__cell[data-level='4'] { background: var(--green); }
+
+.grid--settled .grid__cell {
+  animation: none;
+}
+
+/* Éclat de lumière (onde) : sur un calque, pour ne pas toucher à la couleur du carré. */
+.grid__cell::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: #c4ff8f;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.grid__cell.is-ping::after {
+  animation: ping 620ms ease-out both;
+  animation-delay: var(--d, 0ms);
+}
+
+.grid__cell.is-commit {
+  transform: scale(1.22);
+}
 
 .grid--hidden {
-  visibility: hidden; /* le canvas Three.js dessine les cubes au même endroit */
+  visibility: hidden; /* le canvas Three.js a pris le relais */
 }
 
 @keyframes cell-in {
-  from { opacity: 0; transform: scale(0.6); }
+  from { opacity: 0; transform: translateY(6px) scale(0.5); }
+}
+
+@keyframes ping {
+  0% { opacity: 0; }
+  18% { opacity: 0.7; box-shadow: 0 0 10px 1px rgba(96, 221, 0, 0.6); }
+  100% { opacity: 0; }
 }
 
 /* Écran 1 pendant la scène 3D : même position, il s'efface sous les cubes. */
@@ -142,13 +211,18 @@ p {
   transition: opacity 280ms ease-out;
 }
 
-/* Canvas Three.js, en coordonnées du document. */
+/* Canvas Three.js, en coordonnées du document. Invisible jusqu'au clic. */
 .scene {
   position: absolute;
   top: 0;
   left: 0;
   z-index: 2;
   pointer-events: none;
+  visibility: hidden;
+}
+
+.scene--live {
+  visibility: visible;
 }
 
 .scene canvas {
@@ -157,12 +231,14 @@ p {
 
 /* ───────── Bouton ───────── */
 .button {
-  margin-top: 40px;
+  position: relative;
+  overflow: hidden;
+  margin-top: 36px;
   width: 100%;
-  min-height: 56px;
+  min-height: 60px;
   padding: 0 24px;
   border: 0;
-  border-radius: 14px;
+  border-radius: 16px;
   background: var(--green);
   color: var(--bg);
   font-family: var(--font-mono);
@@ -170,23 +246,44 @@ p {
   font-weight: 700;
   letter-spacing: 0.01em;
   cursor: pointer;
-  box-shadow: 0 0 0 0 rgba(96, 221, 0, 0);
-  transition: transform 120ms ease, box-shadow 200ms ease, background-color 200ms ease;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.18),
+    0 10px 30px -12px rgba(96, 221, 0, 0.55);
+  transition: box-shadow 200ms ease, background-color 200ms ease;
   touch-action: manipulation;
+}
+
+/* Un seul reflet traverse le bouton à la fin de l'ouverture. */
+.button::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.45) 50%, transparent 65%);
+  transform: translateX(-110%);
+  animation: sheen 1100ms 1.5s cubic-bezier(0.45, 0, 0.2, 1) both;
+  pointer-events: none;
+}
+
+.button__label {
+  position: relative;
 }
 
 .button:hover {
   background: #6ff00a;
-  box-shadow: 0 0 28px -6px rgba(96, 221, 0, 0.7);
-}
-
-.button:active {
-  transform: scale(0.98);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.18),
+    0 14px 40px -10px rgba(96, 221, 0, 0.75);
 }
 
 .button:focus-visible {
   outline: 3px solid var(--text);
   outline-offset: 3px;
+}
+
+@keyframes sheen {
+  to { transform: translateX(110%); }
 }
 
 /* ───────── Écran 2 : la surprise ───────── */
