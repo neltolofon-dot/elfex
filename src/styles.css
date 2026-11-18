@@ -1,0 +1,298 @@
+/* ───────── Jetons ───────── */
+:root {
+  --bg: #0a0a0f;
+  --surface: #12121a;
+  --surface-2: #1c1c27;
+  --green: #60dd00;
+  --text: #ffffff;
+  --muted: #8f95a5;
+
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Roboto Mono', Menlo, Consolas, monospace;
+
+  --gutter: 20px;
+  --px: 10px; /* taille d'un pixel du gâteau */
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1,
+p {
+  margin: 0;
+}
+
+/* ───────── Écran commun ───────── */
+.screen {
+  width: 100%;
+  max-width: 30rem;
+  margin: 0 auto;
+  padding: calc(28px + env(safe-area-inset-top)) var(--gutter)
+    calc(24px + env(safe-area-inset-bottom));
+}
+
+/* ───────── Écran 1 : la soumission ───────── */
+.screen--submission {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+.mention {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.01em;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+}
+
+.mention::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--green);
+  flex: none;
+}
+
+.submission__title {
+  margin-top: auto; /* centre le bloc titre + grille dans l'espace dispo */
+  padding-top: 40px;
+  font-size: clamp(1.625rem, 7vw, 2rem);
+  line-height: 1.25;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.card {
+  margin-top: 28px;
+  margin-bottom: auto;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid #1f1f2b;
+  border-radius: 14px;
+}
+
+.grid {
+  display: grid;
+  grid-template-rows: repeat(7, auto);
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 3px;
+}
+
+.grid__cell {
+  aspect-ratio: 1;
+  border-radius: 2px;
+  background: var(--surface-2);
+  animation: cell-in 420ms ease-out both;
+  animation-delay: calc(var(--col) * 28ms);
+}
+
+.grid__cell--l1 { background: rgba(96, 221, 0, 0.22); }
+.grid__cell--l2 { background: rgba(96, 221, 0, 0.45); }
+.grid__cell--l3 { background: rgba(96, 221, 0, 0.7); }
+.grid__cell--l4 { background: var(--green); }
+
+@keyframes cell-in {
+  from { opacity: 0; transform: scale(0.6); }
+}
+
+/* ───────── Bouton ───────── */
+.button {
+  margin-top: 40px;
+  width: 100%;
+  min-height: 56px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--green);
+  color: var(--bg);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: 0 0 0 0 rgba(96, 221, 0, 0);
+  transition: transform 120ms ease, box-shadow 200ms ease, background-color 200ms ease;
+  touch-action: manipulation;
+}
+
+.button:hover {
+  background: #6ff00a;
+  box-shadow: 0 0 28px -6px rgba(96, 221, 0, 0.7);
+}
+
+.button:active {
+  transform: scale(0.98);
+}
+
+.button:focus-visible {
+  outline: 3px solid var(--text);
+  outline-offset: 3px;
+}
+
+/* ───────── Écran 2 : la surprise ───────── */
+.screen--surprise {
+  padding-top: calc(48px + env(safe-area-inset-top));
+  padding-bottom: calc(72px + env(safe-area-inset-bottom));
+}
+
+.cake {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), var(--px));
+  grid-template-rows: repeat(var(--rows), var(--px));
+  width: max-content;
+  margin: 0 auto;
+}
+
+/* halo vert derrière la bougie */
+.cake::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: calc(var(--px) * 2);
+  width: calc(var(--px) * 12);
+  height: calc(var(--px) * 12);
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(96, 221, 0, 0.28), transparent 65%);
+  pointer-events: none;
+  animation: fade-in 600ms 900ms ease-out both;
+}
+
+.px {
+  animation: px-in 260ms ease-out both;
+  animation-delay: calc(var(--step) * 40ms);
+}
+
+.px--plate { background: #262634; }
+.px--sponge { background: #2e2e3e; }
+.px--sponge-shade { background: #222230; }
+.px--cream { background: var(--muted); }
+.px--icing { background: #eceef2; }
+.px--icing-shade { background: #c3c7d1; }
+.px--candle { background: var(--green); }
+.px--candle-stripe { background: #eceef2; }
+.px--wick { background: #3a3d4a; }
+
+.px--flame,
+.px--flame-core {
+  animation:
+    px-in 260ms ease-out both,
+    flicker 1.4s ease-in-out infinite alternate;
+  animation-delay: calc(var(--step) * 40ms), 1s;
+}
+
+.px--flame {
+  background: #9cf25c;
+  box-shadow: 0 0 calc(var(--px) * 1.2) rgba(96, 221, 0, 0.6);
+}
+
+.px--flame-core {
+  background: #f6ffee;
+  animation-direction: normal, alternate-reverse;
+}
+
+@keyframes px-in {
+  from { opacity: 0; transform: translateY(-4px); }
+}
+
+@keyframes flicker {
+  0% { opacity: 1; }
+  50% { opacity: 0.72; }
+  100% { opacity: 0.95; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(10px); }
+}
+
+.surprise__title {
+  margin-top: 36px;
+  text-align: center;
+  font-size: clamp(1.75rem, 8vw, 2.25rem);
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  animation: rise-in 600ms 850ms ease-out both;
+}
+
+.surprise__title:focus {
+  outline: none;
+}
+
+/* ───────── La lettre ───────── */
+.letter {
+  margin-top: 48px;
+  padding-top: 36px;
+  border-top: 1px solid #1f1f2b;
+  font-size: 1.125rem;
+  line-height: 1.75;
+  color: #eceef2;
+  animation: rise-in 700ms 1.1s ease-out both;
+}
+
+.letter p + p {
+  margin-top: 1.25em;
+}
+
+.letter__salutation {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.letter .letter__signature {
+  margin-top: 2.25em;
+  font-size: 1.25rem;
+  font-weight: 650;
+  color: var(--text);
+}
+
+/* ───────── Écrans plus larges ───────── */
+@media (min-width: 480px) {
+  :root {
+    --gutter: 28px;
+    --px: 12px;
+  }
+}
+
+/* ───────── Mouvement réduit ───────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
